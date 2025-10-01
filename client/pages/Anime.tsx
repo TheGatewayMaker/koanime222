@@ -138,31 +138,30 @@ export default function AnimePage() {
               </div>
             )}
 
-            <div className="flex items-center justify-between">
             <h2 className="mb-3 text-lg font-semibold">Episodes</h2>
-            <div className="mb-3">
-              <label className="inline-flex items-center gap-2 text-sm">
-                <span>Season</span>
-                <div className="relative inline-block">
-                  <select
-                    value={seasonPage}
-                    onChange={(e) => setSeasonPage(Number(e.target.value))}
-                    className="rounded-md border bg-background px-3 py-1 pr-8 text-sm"
-                    aria-label="Select season"
-                  >
-                    {Array.from({ length: Math.max(1, episodesPagination?.last_visible_page || 1) }).map((_, i) => (
-                      <option key={i} value={i + 1}>
-                        {i + 1}
-                      </option>
-                    ))}
-                  </select>
-                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-foreground/70">
-                      <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
-                    </svg>
-                  </span>
-                </div>
-              </label>
+
+          <div className="mb-4 flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium">Season</label>
+              <div className="relative inline-block">
+                <select
+                  value={seasonPage}
+                  onChange={(e) => setSeasonPage(Number(e.target.value))}
+                  className="appearance-none rounded-md border bg-background px-4 py-2 pr-8 text-sm transition-shadow duration-150 hover:shadow-sm focus:shadow-md focus:outline-none"
+                  aria-label="Select season"
+                >
+                  {Array.from({ length: Math.max(1, episodesPagination?.last_visible_page || 1) }).map((_, i) => (
+                    <option key={i} value={i + 1}>
+                      {`Season ${i + 1}`}
+                    </option>
+                  ))}
+                </select>
+                <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-foreground/70">
+                    <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
+                  </svg>
+                </span>
+              </div>
             </div>
           </div>
 
