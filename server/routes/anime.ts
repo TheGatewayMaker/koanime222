@@ -65,15 +65,17 @@ export const getInfo: RequestHandler = async (req, res) => {
 export const getEpisodes: RequestHandler = async (req, res) => {
   try {
     const id = req.params.id;
-    const r = await fetch(`${JIKAN_BASE}/anime/${id}/episodes`);
+    const page = Number(req.query.page || 1);
+    const r = await fetch(`${JIKAN_BASE}/anime/${id}/episodes?page=${page}`);
     const json = await r.json();
     const episodes = (json.data || []).map((ep: any) => ({
-      id: String(ep.mal_id ?? `${id}-${ep.mal_id ?? ep.episode}`),
-      number: ep.mal_id ?? ep.mal_id ?? ep.episode ?? 0,
+      id: String(ep.mal_id ?? `${id}-${ep.episode ?? ''}`),
+      number: typeof ep.episode === 'number' ? ep.episode : Number(ep.episode) || 0,
       title: ep.title || ep.title_romanji || ep.title_japanese || undefined,
       air_date: ep.aired || null,
     }));
-    res.json({ episodes });
+    const pagination = json.pagination || null;
+    res.json({ episodes, pagination });
   } catch (e: any) {
     res.status(500).json({ error: e?.message || "Episodes failed" });
   }
