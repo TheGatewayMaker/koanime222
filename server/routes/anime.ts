@@ -241,15 +241,59 @@ export const getDiscover: RequestHandler = async (req, res) => {
   }
 };
 
+function slugify(input: string) {
+  return String(input || "")
+    .toLowerCase()
+    .trim()
+    .replace(/[:"'.,!?&/()\[\]]+/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9\-]/g, "");
+}
+
 export const getStreaming: RequestHandler = async (req, res) => {
+  const CONSUMET = "https://api.consumet.org";
   try {
     const id = req.params.id;
-    const r = await fetch(`${JIKAN_BASE}/anime/${id}/streaming`);
-    const json = await r.json();
-    const links = (json.data || []).map((s: any) => ({
-      name: s.name,
-      url: s.url,
-    }));
+    // get title from jikan
+    const infoRes = await fetch(`${JIKAN_BASE}/anime/${id}`);
+    const infoJson = await infoRes.json();
+    const title = infoJson?.data?.title || infoJson?.data?.title_english || infoJson?.data?.title_japanese;
+    if (!title) return res.json({ links: [] });
+    const slug = slugify(title);
+    const providers = ["gogoanime", "zoro", "animepahe"];
+    const links: { name: string; url: string }[] = [];
+    for (const p of providers) {
+      try {
+        // Some providers have a watch endpoint pattern
+        const watchUrl = `${CONSUMET}/anime/${p}/watch/${slug}-episode-1`;
+        const r = await fetch(watchUrl);
+        if (!r.ok) continue;
+        const j = await r.json();
+        const sources = j?.sources || j?.mirrors || j?.streaming || j?.data || null;
+        if (Array.isArray(sources)) {
+          // collect provider name and URL(s)
+          for (const s of sources) {
+            if (s?.url) links.push({ name: p, url: s.url });
+            else if (typeof s === "string") links.push({ name: p, url: s });
+          }
+        } else if (j?.url) {
+          links.push({ name: p, url: j.url });
+        }
+      } catch (e) {
+        // ignore provider errors
+      }
+    }
+
+    // Fallback to Jikan streaming
+    if (links.length === 0) {
+      try {
+        const r2 = await fetch(`${JIKAN_BASE}/anime/${id}/streaming`);
+        const j2 = await r2.json();
+        const jlinks = (j2.data || []).map((s: any) => ({ name: s.name, url: s.url }));
+        links.push(...jlinks);
+      } catch (e) {}
+    }
+
     res.json({ links });
   } catch (e: any) {
     res.status(500).json({ error: e?.message || "Streaming providers failed" });
