@@ -133,13 +133,16 @@ export const getEpisodes: RequestHandler = async (req, res) => {
       const inf = await tryFetchJson(infoUrl).catch(() => null);
       const epCount = inf?.data?.episodes ?? null;
       if (typeof epCount === 'number' && epCount > 0) {
-        const episodes = Array.from({ length: Math.min(epCount, 200) }).map((_, i) => ({
+        const max = Math.min(epCount, 200);
+        const episodes = Array.from({ length: max }).map((_, i) => ({
           id: `${id}-${i + 1}`,
           number: i + 1,
           title: undefined,
           air_date: null,
         }));
-        return res.json({ episodes, pagination: { page: 1, has_next_page: epCount > episodes.length } });
+        const per_page = 24;
+        const last_visible_page = Math.ceil(epCount / per_page);
+        return res.json({ episodes, pagination: { page: 1, has_next_page: epCount > max, last_visible_page } });
       }
     } catch (e) {
       console.warn("fallback info fetch failed", String(e));
