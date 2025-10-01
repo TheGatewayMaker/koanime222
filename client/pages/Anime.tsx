@@ -85,7 +85,7 @@ export default function AnimePage() {
             <div className="h-64 animate-pulse rounded bg-muted" />
           </div>
         </div>
-      ) : info ? (
+      ) : (info || episodes.length > 0) ? (
         <div>
           <div className="relative">
             <div className="absolute inset-0 -z-10">
