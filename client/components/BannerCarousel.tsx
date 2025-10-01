@@ -54,42 +54,46 @@ export function BannerCarousel({ items }: { items: BannerItem[] }) {
 
   return (
     <div className="relative" onMouseEnter={() => (isHovering.current = true)} onMouseLeave={() => (isHovering.current = false)}>
-      <div className="overflow-hidden" ref={emblaRef}>
+      <div className="overflow-hidden mx-auto max-w-6xl" ref={emblaRef}>
         <div className="flex touch-pan-y">
           {items.map((item) => (
             <Link
               key={item.id}
               to={`/anime/${item.id}`}
-              className="relative h-[220px] w-full min-w-0 shrink-0 grow-0 basis-full cursor-grab md:h-[380px] md:basis-full md:min-w-full px-4 md:px-0"
+              className="relative w-full min-w-0 shrink-0 grow-0 basis-full cursor-grab md:basis-full md:min-w-full"
             >
-              <div className="relative h-full w-full rounded-lg overflow-hidden">
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="h-full w-full object-cover brightness-75 transition-transform duration-300"
-                />
+              <div className="relative w-full overflow-hidden rounded-2xl">
+                <div className="aspect-[16/6] w-full">
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="h-full w-full object-cover brightness-90 transition-transform duration-500 hover:scale-[1.02]"
+                  />
+                </div>
 
-                {/* dark overlay to improve readability */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
+                {/* subtle bottom gradient for contrast without opaque block */}
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/20 to-transparent" />
 
-                {/* full-width bottom info bar, softer darkness to not obscure image */}
-                <div className="absolute left-0 right-0 bottom-0 p-4 md:p-6">
-                  <div className="w-full rounded-none bg-black/25 p-3 backdrop-blur-sm shadow-sm">
-                    <h3 className="line-clamp-1 text-lg font-bold text-white md:text-3xl">{item.title}</h3>
+                {/* info at bottom-left with text drop shadow instead of a dark block */}
+                <div className="absolute left-6 bottom-6 right-6 max-w-3xl">
+                  <h3 className="line-clamp-1 text-white text-2xl font-extrabold md:text-5xl filter drop-shadow-[0_8px_20px_rgba(0,0,0,0.7)]">
+                    {item.title}
+                  </h3>
 
-                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-white/90">
-                      {item.rating != null && (
-                        <span className="rounded bg-black/40 px-2 py-1">⭐ {item.rating.toFixed(1)}</span>
-                      )}
-                      {item.subDub && <span className="rounded bg-black/40 px-2 py-1">{item.subDub}</span>}
-                      {item.type && <span className="rounded bg-black/40 px-2 py-1">{item.type}</span>}
-                      {item.year && <span className="rounded bg-black/40 px-2 py-1">{item.year}</span>}
-                    </div>
-
-                    {item.description && (
-                      <p className="mt-2 max-w-2xl line-clamp-2 text-sm text-white/80">{item.description}</p>
+                  <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-white/95 filter drop-shadow-[0_6px_14px_rgba(0,0,0,0.6)]">
+                    {item.rating != null && (
+                      <span className="rounded bg-black/10 px-2 py-1">⭐ {item.rating.toFixed(1)}</span>
                     )}
+                    {item.subDub && <span className="rounded bg-black/10 px-2 py-1">{item.subDub}</span>}
+                    {item.type && <span className="rounded bg-black/10 px-2 py-1">{item.type}</span>}
+                    {item.year && <span className="rounded bg-black/10 px-2 py-1">{item.year}</span>}
                   </div>
+
+                  {item.description && (
+                    <p className="mt-3 max-w-2xl text-sm text-white/90 filter drop-shadow-[0_4px_10px_rgba(0,0,0,0.55)] line-clamp-2">
+                      {item.description}
+                    </p>
+                  )}
                 </div>
               </div>
             </Link>
