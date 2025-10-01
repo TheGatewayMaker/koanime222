@@ -14,7 +14,11 @@ export async function fetchTrending(): Promise<ApiAnimeSummary[]> {
   try {
     const res = await fetch("/api/anime/trending");
     if (!res.ok) {
-      console.error("fetchTrending failed", res.status, await res.text().catch(() => ""));
+      console.error(
+        "fetchTrending failed",
+        res.status,
+        await res.text().catch(() => ""),
+      );
       return [];
     }
     const data = await res.json();
@@ -34,9 +38,15 @@ export interface DiscoverParams {
 }
 export interface DiscoverResponse {
   results: ApiAnimeSummary[];
-  pagination: { page: number; has_next_page: boolean; last_visible_page: number | null };
+  pagination: {
+    page: number;
+    has_next_page: boolean;
+    last_visible_page: number | null;
+  };
 }
-export async function fetchDiscover(params: DiscoverParams = {}): Promise<DiscoverResponse> {
+export async function fetchDiscover(
+  params: DiscoverParams = {},
+): Promise<DiscoverResponse> {
   try {
     const qs = new URLSearchParams();
     if (params.q) qs.set("q", params.q);
@@ -46,22 +56,47 @@ export async function fetchDiscover(params: DiscoverParams = {}): Promise<Discov
     if (params.sort) qs.set("sort", params.sort);
     const res = await fetch(`/api/anime/discover?${qs.toString()}`);
     if (!res.ok) {
-      console.error("fetchDiscover failed", res.status, await res.text().catch(() => ""));
-      return { results: [], pagination: { page: params.page || 1, has_next_page: false, last_visible_page: null } };
+      console.error(
+        "fetchDiscover failed",
+        res.status,
+        await res.text().catch(() => ""),
+      );
+      return {
+        results: [],
+        pagination: {
+          page: params.page || 1,
+          has_next_page: false,
+          last_visible_page: null,
+        },
+      };
     }
     return await res.json();
   } catch (e) {
     console.error("fetchDiscover error", e);
-    return { results: [], pagination: { page: params.page || 1, has_next_page: false, last_visible_page: null } };
+    return {
+      results: [],
+      pagination: {
+        page: params.page || 1,
+        has_next_page: false,
+        last_visible_page: null,
+      },
+    };
   }
 }
 
-export interface GenreItem { id: number; name: string }
+export interface GenreItem {
+  id: number;
+  name: string;
+}
 export async function fetchGenres(): Promise<GenreItem[]> {
   try {
     const res = await fetch("/api/anime/genres");
     if (!res.ok) {
-      console.error("fetchGenres failed", res.status, await res.text().catch(() => ""));
+      console.error(
+        "fetchGenres failed",
+        res.status,
+        await res.text().catch(() => ""),
+      );
       return [];
     }
     const data = await res.json();
@@ -72,12 +107,19 @@ export async function fetchGenres(): Promise<GenreItem[]> {
   }
 }
 
-export interface StreamLink { name: string; url: string }
+export interface StreamLink {
+  name: string;
+  url: string;
+}
 export async function fetchStreams(id: number): Promise<StreamLink[]> {
   try {
     const res = await fetch(`/api/anime/streams/${id}`);
     if (!res.ok) {
-      console.error("fetchStreams failed", res.status, await res.text().catch(() => ""));
+      console.error(
+        "fetchStreams failed",
+        res.status,
+        await res.text().catch(() => ""),
+      );
       return [];
     }
     const data = await res.json();
@@ -92,7 +134,11 @@ export async function fetchNewReleases(): Promise<ApiAnimeSummary[]> {
   try {
     const res = await fetch("/api/anime/new");
     if (!res.ok) {
-      console.error("fetchNewReleases failed", res.status, await res.text().catch(() => ""));
+      console.error(
+        "fetchNewReleases failed",
+        res.status,
+        await res.text().catch(() => ""),
+      );
       return [];
     }
     const data = await res.json();
@@ -103,11 +149,17 @@ export async function fetchNewReleases(): Promise<ApiAnimeSummary[]> {
   }
 }
 
-export async function fetchAnimeInfo(id: number): Promise<ApiAnimeSummary | null> {
+export async function fetchAnimeInfo(
+  id: number,
+): Promise<ApiAnimeSummary | null> {
   try {
     const res = await fetch(`/api/anime/info/${id}`);
     if (!res.ok) {
-      console.error("fetchAnimeInfo failed", res.status, await res.text().catch(() => ""));
+      console.error(
+        "fetchAnimeInfo failed",
+        res.status,
+        await res.text().catch(() => ""),
+      );
       return null;
     }
     return await res.json();
@@ -125,9 +177,16 @@ export interface EpisodeItem {
 }
 export interface EpisodesResponse {
   episodes: EpisodeItem[];
-  pagination?: { has_next_page?: boolean; last_visible_page?: number | null; items?: any } | null;
+  pagination?: {
+    has_next_page?: boolean;
+    last_visible_page?: number | null;
+    items?: any;
+  } | null;
 }
-export async function fetchEpisodes(id: number, page = 1): Promise<EpisodesResponse> {
+export async function fetchEpisodes(
+  id: number,
+  page = 1,
+): Promise<EpisodesResponse> {
   const ALT_BASE = "https://api3.anime-dexter-live.workers.dev";
   // Try server endpoint first
   try {
@@ -147,7 +206,9 @@ export async function fetchEpisodes(id: number, page = 1): Promise<EpisodesRespo
     const r = await fetch(dexterUrl);
     if (r.ok) {
       const j = await r.json();
-      return normalizeEpisodesResponse({ episodes: j.data || j.results || j.episodes || j });
+      return normalizeEpisodesResponse({
+        episodes: j.data || j.results || j.episodes || j,
+      });
     }
     console.warn("dexter direct returned non-ok", r.status);
   } catch (e) {
@@ -160,7 +221,10 @@ export async function fetchEpisodes(id: number, page = 1): Promise<EpisodesRespo
     const rj = await fetch(jikanUrl);
     if (rj.ok) {
       const j = await rj.json();
-      return normalizeEpisodesResponse({ episodes: j.data || j.episodes || [] , pagination: j.pagination || null});
+      return normalizeEpisodesResponse({
+        episodes: j.data || j.episodes || [],
+        pagination: j.pagination || null,
+      });
     }
     console.warn("jikan direct returned non-ok", rj.status);
   } catch (e) {
@@ -171,23 +235,38 @@ export async function fetchEpisodes(id: number, page = 1): Promise<EpisodesRespo
 }
 
 function normalizeEpisodesResponse(data: any): EpisodesResponse {
-  const episodes = (data.episodes || data.results || data.data || []).map((ep: any) => {
-    const number = ep.number ?? ep.episode ?? ep.episode_number ?? ep.ep ?? ep.ep_num ?? ep.mal_id ?? null;
-    const title = ep.title || ep.name || ep.episodeTitle || ep.title_english || undefined;
-    const air_date = ep.air_date ?? ep.aired ?? ep.date ?? null;
-    const id = ep.id ?? ep.mal_id ?? `${ep.mal_id ?? ''}-${number ?? ''}`;
-    return {
-      id: String(id),
-      number: typeof number === 'number' ? number : Number(number) || 0,
-      title,
-      air_date,
-    };
-  });
+  const episodes = (data.episodes || data.results || data.data || []).map(
+    (ep: any) => {
+      const number =
+        ep.number ??
+        ep.episode ??
+        ep.episode_number ??
+        ep.ep ??
+        ep.ep_num ??
+        ep.mal_id ??
+        null;
+      const title =
+        ep.title || ep.name || ep.episodeTitle || ep.title_english || undefined;
+      const air_date = ep.air_date ?? ep.aired ?? ep.date ?? null;
+      const id = ep.id ?? ep.mal_id ?? `${ep.mal_id ?? ""}-${number ?? ""}`;
+      return {
+        id: String(id),
+        number: typeof number === "number" ? number : Number(number) || 0,
+        title,
+        air_date,
+      };
+    },
+  );
 
   // Normalize pagination to include last_visible_page if possible
   const pagination = data.pagination || data.meta || null;
-  if (pagination && typeof pagination === 'object') {
-    const last = pagination.last_visible_page ?? pagination.last_page ?? pagination.total_pages ?? pagination.totalPages ?? null;
+  if (pagination && typeof pagination === "object") {
+    const last =
+      pagination.last_visible_page ??
+      pagination.last_page ??
+      pagination.total_pages ??
+      pagination.totalPages ??
+      null;
     return { episodes, pagination: { ...pagination, last_visible_page: last } };
   }
   return { episodes, pagination: null };

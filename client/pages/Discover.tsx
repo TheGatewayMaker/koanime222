@@ -28,15 +28,28 @@ export default function Discover() {
 
   const selectedGenreValid = useMemo(() => {
     if (!genre) return "";
-    const found = genres.find((g) => g.name.toLowerCase() === genre.toLowerCase());
+    const found = genres.find(
+      (g) => g.name.toLowerCase() === genre.toLowerCase(),
+    );
     return found?.name || "";
   }, [genre, genres]);
 
   async function load(p = 1, append = false) {
     setLoading(true);
     try {
-      const resp = await fetchDiscover({ q: q.trim() || undefined, genre: selectedGenreValid || undefined, page: p });
-      setData((prev) => (append && prev ? { results: [...prev.results, ...resp.results], pagination: resp.pagination } : resp));
+      const resp = await fetchDiscover({
+        q: q.trim() || undefined,
+        genre: selectedGenreValid || undefined,
+        page: p,
+      });
+      setData((prev) =>
+        append && prev
+          ? {
+              results: [...prev.results, ...resp.results],
+              pagination: resp.pagination,
+            }
+          : resp,
+      );
       setPage(p);
     } finally {
       setLoading(false);
@@ -98,7 +111,10 @@ export default function Discover() {
         {loading && !data ? (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6">
             {Array.from({ length: 12 }).map((_, i) => (
-              <div key={i} className="aspect-[3/4] animate-pulse rounded-md bg-muted" />
+              <div
+                key={i}
+                className="aspect-[3/4] animate-pulse rounded-md bg-muted"
+              />
             ))}
           </div>
         ) : data && data.results.length > 0 ? (
@@ -121,7 +137,9 @@ export default function Discover() {
             )}
           </>
         ) : (
-          <div className="py-12 text-center text-foreground/70">No results found.</div>
+          <div className="py-12 text-center text-foreground/70">
+            No results found.
+          </div>
         )}
       </div>
     </Layout>

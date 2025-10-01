@@ -14,7 +14,11 @@ export interface BannerItem {
 }
 
 export function BannerCarousel({ items }: { items: BannerItem[] }) {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start", skipSnaps: false });
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    loop: true,
+    align: "start",
+    skipSnaps: false,
+  });
   const timerRef = useRef<number | null>(null);
   const isHovering = useRef(false);
 
@@ -53,7 +57,11 @@ export function BannerCarousel({ items }: { items: BannerItem[] }) {
   }, [emblaApi, play, stop]);
 
   return (
-    <div className="relative" onMouseEnter={() => (isHovering.current = true)} onMouseLeave={() => (isHovering.current = false)}>
+    <div
+      className="relative"
+      onMouseEnter={() => (isHovering.current = true)}
+      onMouseLeave={() => (isHovering.current = false)}
+    >
       <div className="overflow-hidden mx-auto max-w-6xl" ref={emblaRef}>
         <div className="flex touch-pan-y">
           {items.map((item) => (
@@ -82,11 +90,25 @@ export function BannerCarousel({ items }: { items: BannerItem[] }) {
 
                   <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-white/95 filter drop-shadow-[0_6px_14px_rgba(0,0,0,0.6)]">
                     {item.rating != null && (
-                      <span className="rounded bg-black/10 px-2 py-1">⭐ {item.rating.toFixed(1)}</span>
+                      <span className="rounded bg-black/10 px-2 py-1">
+                        ⭐ {item.rating.toFixed(1)}
+                      </span>
                     )}
-                    {item.subDub && <span className="rounded bg-black/10 px-2 py-1">{item.subDub}</span>}
-                    {item.type && <span className="rounded bg-black/10 px-2 py-1">{item.type}</span>}
-                    {item.year && <span className="rounded bg-black/10 px-2 py-1">{item.year}</span>}
+                    {item.subDub && (
+                      <span className="rounded bg-black/10 px-2 py-1">
+                        {item.subDub}
+                      </span>
+                    )}
+                    {item.type && (
+                      <span className="rounded bg-black/10 px-2 py-1">
+                        {item.type}
+                      </span>
+                    )}
+                    {item.year && (
+                      <span className="rounded bg-black/10 px-2 py-1">
+                        {item.year}
+                      </span>
+                    )}
                   </div>
 
                   {item.description && (

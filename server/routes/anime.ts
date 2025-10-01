@@ -68,7 +68,9 @@ export const getEpisodes: RequestHandler = async (req, res) => {
   function fetchWithTimeout(url: string, opts: any = {}, timeout = 7000) {
     const controller = new AbortController();
     const idT = setTimeout(() => controller.abort(), timeout);
-    return fetch(url, { signal: controller.signal, ...opts }).finally(() => clearTimeout(idT));
+    return fetch(url, { signal: controller.signal, ...opts }).finally(() =>
+      clearTimeout(idT),
+    );
   }
 
   async function tryFetchJson(url: string) {
@@ -93,8 +95,15 @@ export const getEpisodes: RequestHandler = async (req, res) => {
       const arr = jAlt.data || jAlt.results || jAlt.episodes || null;
       if (Array.isArray(arr) && arr.length > 0) {
         const episodes = arr.map((ep: any) => {
-          const number = ep.number ?? ep.episode ?? ep.episode_number ?? ep.ep ?? ep.ep_num ?? null;
-          const title = ep.title || ep.name || ep.episodeTitle || ep.title_english || null;
+          const number =
+            ep.number ??
+            ep.episode ??
+            ep.episode_number ??
+            ep.ep ??
+            ep.ep_num ??
+            null;
+          const title =
+            ep.title || ep.name || ep.episodeTitle || ep.title_english || null;
           const air_date = ep.air_date ?? ep.aired ?? ep.date ?? null;
           const eid = ep.id ?? ep.mal_id ?? `${id}-${number ?? "0"}`;
           return {
@@ -116,8 +125,9 @@ export const getEpisodes: RequestHandler = async (req, res) => {
       const jikanUrl = `${JIKAN_BASE}/anime/${id}/episodes?page=${page}`;
       const json = await tryFetchJson(jikanUrl);
       const episodes = (json.data || []).map((ep: any) => ({
-        id: String(ep.mal_id ?? `${id}-${ep.episode ?? ''}`),
-        number: typeof ep.episode === 'number' ? ep.episode : Number(ep.episode) || 0,
+        id: String(ep.mal_id ?? `${id}-${ep.episode ?? ""}`),
+        number:
+          typeof ep.episode === "number" ? ep.episode : Number(ep.episode) || 0,
         title: ep.title || ep.title_romanji || ep.title_japanese || undefined,
         air_date: ep.aired || null,
       }));
@@ -132,7 +142,7 @@ export const getEpisodes: RequestHandler = async (req, res) => {
       const infoUrl = `${JIKAN_BASE}/anime/${id}/full`;
       const inf = await tryFetchJson(infoUrl).catch(() => null);
       const epCount = inf?.data?.episodes ?? null;
-      if (typeof epCount === 'number' && epCount > 0) {
+      if (typeof epCount === "number" && epCount > 0) {
         const max = Math.min(epCount, 200);
         const episodes = Array.from({ length: max }).map((_, i) => ({
           id: `${id}-${i + 1}`,
@@ -142,7 +152,14 @@ export const getEpisodes: RequestHandler = async (req, res) => {
         }));
         const per_page = 24;
         const last_visible_page = Math.ceil(epCount / per_page);
-        return res.json({ episodes, pagination: { page: 1, has_next_page: epCount > max, last_visible_page } });
+        return res.json({
+          episodes,
+          pagination: {
+            page: 1,
+            has_next_page: epCount > max,
+            last_visible_page,
+          },
+        });
       }
     } catch (e) {
       console.warn("fallback info fetch failed", String(e));
@@ -156,13 +173,18 @@ export const getEpisodes: RequestHandler = async (req, res) => {
 };
 
 // Fetch genres from Jikan and cache in-memory for a few minutes
-let genresCache: { at: number; items: { id: number; name: string }[] } | null = null;
+let genresCache: { at: number; items: { id: number; name: string }[] } | null =
+  null;
 async function getGenresList(): Promise<{ id: number; name: string }[]> {
   const now = Date.now();
-  if (genresCache && now - genresCache.at < 5 * 60 * 1000) return genresCache.items;
+  if (genresCache && now - genresCache.at < 5 * 60 * 1000)
+    return genresCache.items;
   const r = await fetch(`${JIKAN_BASE}/genres/anime`);
   const json = await r.json();
-  const items = (json.data || []).map((g: any) => ({ id: g.mal_id, name: g.name }));
+  const items = (json.data || []).map((g: any) => ({
+    id: g.mal_id,
+    name: g.name,
+  }));
   genresCache = { at: now, items };
   return items;
 }
@@ -194,8 +216,11 @@ export const getDiscover: RequestHandler = async (req, res) => {
 
     if (genre) {
       const list = await getGenresList();
-      const wanted = list.filter((g) => g.name.toLowerCase() === genre.toLowerCase());
-      if (wanted.length > 0) params.set("genres", wanted.map((g) => g.id).join(","));
+      const wanted = list.filter(
+        (g) => g.name.toLowerCase() === genre.toLowerCase(),
+      );
+      if (wanted.length > 0)
+        params.set("genres", wanted.map((g) => g.id).join(","));
     }
 
     const r = await fetch(`${JIKAN_BASE}/anime?${params.toString()}`);
@@ -239,6 +264,8 @@ export const getNewReleases: RequestHandler = async (_req, res) => {
     const results = (json.data || []).map(mapAnime);
     res.json({ results });
   } catch (e: any) {
-    res.status(500).json({ error: e?.message || "Failed to fetch new releases" });
+    res
+      .status(500)
+      .json({ error: e?.message || "Failed to fetch new releases" });
   }
 };

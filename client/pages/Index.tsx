@@ -13,7 +13,10 @@ export default function Index() {
   useEffect(() => {
     (async () => {
       try {
-        const [newR, trend] = await Promise.all([fetchNewReleases(), fetchTrending()]);
+        const [newR, trend] = await Promise.all([
+          fetchNewReleases(),
+          fetchTrending(),
+        ]);
         setNewReleases(newR);
         setBanner(
           newR.slice(0, 10).map((t) => ({
@@ -47,7 +50,10 @@ export default function Index() {
         {loading ? (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6">
             {Array.from({ length: 10 }).map((_, i) => (
-              <div key={i} className="aspect-[3/4] animate-pulse rounded-md bg-muted" />
+              <div
+                key={i}
+                className="aspect-[3/4] animate-pulse rounded-md bg-muted"
+              />
             ))}
           </div>
         ) : (
@@ -56,7 +62,9 @@ export default function Index() {
               <div key={a.id} className="flex flex-col">
                 <AnimeCard anime={a} />
                 <div className="mt-2 flex items-center justify-center">
-                  <span className="rounded-full border px-3 py-1 text-sm font-semibold">{idx + 1}</span>
+                  <span className="rounded-full border px-3 py-1 text-sm font-semibold">
+                    {idx + 1}
+                  </span>
                 </div>
               </div>
             ))}
@@ -66,7 +74,9 @@ export default function Index() {
 
       <section className="container mx-auto px-4 py-6 md:py-8">
         <div className="rounded-md border p-4 md:p-6">
-          <h3 className="mb-3 text-base font-semibold md:text-lg">Browse by Genre</h3>
+          <h3 className="mb-3 text-base font-semibold md:text-lg">
+            Browse by Genre
+          </h3>
           <div className="flex flex-wrap gap-2">
             {GENRES.map((g) => (
               <a
@@ -84,12 +94,17 @@ export default function Index() {
       <section className="container mx-auto px-4 pb-12 md:pb-16">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold md:text-2xl">Trending Now</h2>
-          <a href="/discover" className="text-sm text-primary hover:underline">See all</a>
+          <a href="/discover" className="text-sm text-primary hover:underline">
+            See all
+          </a>
         </div>
         {loading ? (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6">
             {Array.from({ length: 12 }).map((_, i) => (
-              <div key={i} className="aspect-[3/4] animate-pulse rounded-md bg-muted" />
+              <div
+                key={i}
+                className="aspect-[3/4] animate-pulse rounded-md bg-muted"
+              />
             ))}
           </div>
         ) : (

@@ -34,11 +34,16 @@ export default function Signup() {
     <Layout>
       <div className="container mx-auto px-4 py-12">
         <div className="mx-auto w-full max-w-md rounded-xl border p-6 shadow-sm">
-          <h1 className="text-center text-2xl font-bold">Create your account</h1>
-          <p className="mt-1 text-center text-sm text-foreground/70">Join KoAnime to track your watch history</p>
+          <h1 className="text-center text-2xl font-bold">
+            Create your account
+          </h1>
+          <p className="mt-1 text-center text-sm text-foreground/70">
+            Join KoAnime to track your watch history
+          </p>
           {!configured && (
             <div className="mt-3 rounded border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-200">
-              Firebase isn't configured. Add VITE_FIREBASE_* env vars in project settings to enable authentication.
+              Firebase isn't configured. Add VITE_FIREBASE_* env vars in project
+              settings to enable authentication.
             </div>
           )}
           <form className="mt-6 space-y-3" onSubmit={onSubmit}>
@@ -74,12 +79,19 @@ export default function Signup() {
               />
             </div>
             {error && <div className="text-sm text-destructive">{error}</div>}
-            <button type="submit" className="mt-2 w-full rounded-md bg-primary px-3 py-2 font-semibold text-primary-foreground" disabled={!configured || loading}>
+            <button
+              type="submit"
+              className="mt-2 w-full rounded-md bg-primary px-3 py-2 font-semibold text-primary-foreground"
+              disabled={!configured || loading}
+            >
               {loading ? "Creating…" : "Sign up"}
             </button>
           </form>
           <div className="mt-4 text-center text-sm">
-            Already have an account? <a href="/login" className="text-primary underline">Log in</a>
+            Already have an account?{" "}
+            <a href="/login" className="text-primary underline">
+              Log in
+            </a>
           </div>
         </div>
       </div>
