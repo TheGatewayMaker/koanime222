@@ -25,6 +25,9 @@ export function createServer() {
   app.get("/api/anime/search", getSearch);
   app.get("/api/anime/info/:id", getInfo);
   app.get("/api/anime/episodes/:id", getEpisodes);
+  app.get("/api/anime/discover", getDiscover);
+  app.get("/api/anime/genres", getGenres);
+  app.get("/api/anime/streams/:id", getStreaming);
 
   return app;
 }
