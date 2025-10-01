@@ -154,3 +154,15 @@ export const getStreaming: RequestHandler = async (req, res) => {
     res.status(500).json({ error: e?.message || "Streaming providers failed" });
   }
 };
+
+// New releases (current season)
+export const getNewReleases: RequestHandler = async (_req, res) => {
+  try {
+    const r = await fetch(`${JIKAN_BASE}/seasons/now`);
+    const json = await r.json();
+    const results = (json.data || []).map(mapAnime);
+    res.json({ results });
+  } catch (e: any) {
+    res.status(500).json({ error: e?.message || "Failed to fetch new releases" });
+  }
+};
