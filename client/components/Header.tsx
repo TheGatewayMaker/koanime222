@@ -1,7 +1,7 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { SearchBar } from "../components/SearchBar";
-import { ThemeToggle } from "../components/ThemeToggle";
+import { SearchBar } from "./SearchBar";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function Header() {
   const [open, setOpen] = useState(false);
