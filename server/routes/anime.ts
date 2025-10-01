@@ -79,7 +79,9 @@ export const getInfo: RequestHandler = async (req, res) => {
     // Not numeric or initial fetch failed: try searching Jikan by title (replace hyphens with spaces)
     const titleQuery = raw.replace(/-/g, " ");
     try {
-      const sr = await fetch(`${JIKAN_BASE}/anime?q=${encodeURIComponent(titleQuery)}&limit=5`);
+      const sr = await fetch(
+        `${JIKAN_BASE}/anime?q=${encodeURIComponent(titleQuery)}&limit=5`,
+      );
       if (sr.ok) {
         const sj = await sr.json();
         const first = (sj.data || [])[0];
@@ -102,7 +104,8 @@ export const getInfo: RequestHandler = async (req, res) => {
           const r = await fetch(url);
           if (!r.ok) continue;
           const j = await r.json();
-          const ep = j?.id || j?.mal_id || j?.data?.mal_id || j?.data?.id || null;
+          const ep =
+            j?.id || j?.mal_id || j?.data?.mal_id || j?.data?.id || null;
           // If we can find mal_id, fetch full from Jikan
           if (ep) {
             const data = await fetchByMal(String(ep));
