@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import useEmblaCarousel, { EmblaCarouselType } from "embla-carousel-react";
+import useEmblaCarousel from "embla-carousel-react";
 
 export interface BannerItem {
   id: number;
@@ -8,6 +8,9 @@ export interface BannerItem {
   image: string;
   description?: string;
   rating?: number | null;
+  subDub?: string | null;
+  year?: number | null;
+  type?: string | null;
 }
 
 export function BannerCarousel({ items }: { items: BannerItem[] }) {
@@ -34,7 +37,6 @@ export function BannerCarousel({ items }: { items: BannerItem[] }) {
     if (!emblaApi) return;
     play();
     const onSelect = () => {
-      // restart timer on user interaction
       stop();
       play();
     };
@@ -61,9 +63,23 @@ export function BannerCarousel({ items }: { items: BannerItem[] }) {
               className="relative h-[220px] w-full min-w-0 shrink-0 grow-0 basis-full cursor-grab md:h-[380px]"
             >
               <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <div className="absolute left-0 right-0 top-0 p-4 md:p-6">
-                <h3 className="line-clamp-1 text-xl font-bold text-white md:text-3xl">{item.title}</h3>
+              <div className="absolute inset-0 rounded-md bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+              <div className="absolute left-4 top-4 right-4 md:left-6 md:top-6 md:right-6">
+                <h3 className="line-clamp-1 text-lg font-bold text-white md:text-3xl">{item.title}</h3>
+
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-white/90">
+                  {item.rating != null && (
+                    <span className="rounded bg-black/60 px-2 py-1">⭐ {item.rating.toFixed(1)}</span>
+                  )}
+                  {item.subDub && <span className="rounded bg-black/60 px-2 py-1">{item.subDub}</span>}
+                  {item.type && <span className="rounded bg-black/60 px-2 py-1">{item.type}</span>}
+                  {item.year && <span className="rounded bg-black/60 px-2 py-1">{item.year}</span>}
+                </div>
+
+                {item.description && (
+                  <p className="mt-2 max-w-2xl line-clamp-2 text-sm text-white/80">{item.description}</p>
+                )}
               </div>
             </Link>
           ))}
