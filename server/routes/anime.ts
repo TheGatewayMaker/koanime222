@@ -97,39 +97,45 @@ export const getEpisodes: RequestHandler = async (req, res) => {
     const id = req.params.id;
     const page = Number(req.query.page || 1);
 
-    // 1) Try dexter API with timeout/retries
+    // 1) Try Consumet providers (use title->slug to lookup)
     try {
-      const altUrl = `${ALT_BASE}/anime/${id}/episodes${page > 1 ? `?page=${page}` : ""}`;
-      const jAlt = await tryFetchJson(altUrl);
-      const arr = jAlt.data || jAlt.results || jAlt.episodes || null;
-      if (Array.isArray(arr) && arr.length > 0) {
-        const episodes = arr.map((ep: any) => {
-          const number =
-            ep.number ??
-            ep.episode ??
-            ep.episode_number ??
-            ep.ep ??
-            ep.ep_num ??
-            null;
-          const title =
-            ep.title || ep.name || ep.episodeTitle || ep.title_english || null;
-          const air_date = ep.air_date ?? ep.aired ?? ep.date ?? null;
-          const eid = ep.id ?? ep.mal_id ?? `${id}-${number ?? "0"}`;
-          return {
-            id: String(eid),
-            number: typeof number === "number" ? number : Number(number) || 0,
-            title: title || undefined,
-            air_date,
-          };
-        });
-        const pagination = jAlt.pagination || jAlt.meta || null;
-        return res.json({ episodes, pagination });
+      const infoShort = await tryFetchJson(`${JIKAN_BASE}/anime/${id}`).catch(() => null);
+      const title = infoShort?.data?.title || infoShort?.data?.title_english || infoShort?.data?.title_japanese;
+      if (title) {
+        const slug = slugify(title);
+        const CONSUMET = "https://api.consumet.org";
+        const providers = ["gogoanime", "zoro", "animepahe"];
+        for (const p of providers) {
+          try {
+            const url = `${CONSUMET}/anime/${p}/info/${slug}`;
+            const jC = await tryFetchJson(url);
+            const arr = jC?.episodes || jC?.results || jC?.data?.episodes || jC?.data || null;
+            if (Array.isArray(arr) && arr.length > 0) {
+              const episodes = arr.map((ep: any) => {
+                const number = ep.number ?? ep.episode ?? ep.ep ?? ep.ep_num ?? ep.index ?? null;
+                const title = ep.title || ep.name || ep.episodeTitle || ep.title_english || null;
+                const air_date = ep.air_date ?? ep.aired ?? ep.date ?? null;
+                const eid = ep.id ?? ep.mal_id ?? `${id}-${number ?? "0"}`;
+                return {
+                  id: String(eid),
+                  number: typeof number === "number" ? number : Number(number) || 0,
+                  title: title || undefined,
+                  air_date,
+                };
+              });
+              const pagination = jC?.pagination || jC?.meta || null;
+              return res.json({ episodes, pagination });
+            }
+          } catch (e) {
+            // ignore provider errors
+          }
+        }
       }
     } catch (e) {
-      console.warn("dexter episodes fetch failed", String(e));
+      console.warn("consumet episodes fetch failed", String(e));
     }
 
-    // 2) Try Jikan
+    // 2) Try dexter API with timeout/retries
     try {
       const jikanUrl = `${JIKAN_BASE}/anime/${id}/episodes?page=${page}`;
       const json = await tryFetchJson(jikanUrl);
