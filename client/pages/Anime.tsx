@@ -52,6 +52,7 @@ export default function AnimePage() {
   }, [id, seasonPage]);
 
   const banner = useMemo(() => info?.image ?? "", [info]);
+  const loading = loadingInfo || loadingEpisodes;
 
   return (
     <Layout>
