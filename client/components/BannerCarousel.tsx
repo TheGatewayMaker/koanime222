@@ -72,18 +72,18 @@ export function BannerCarousel({ items }: { items: BannerItem[] }) {
                 {/* dark overlay to improve readability */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
 
-                {/* info at bottom-left with subtle drop shadow/backdrop */}
-                <div className="absolute left-4 bottom-4 right-4 md:left-6 md:bottom-6 md:right-auto max-w-3xl">
-                  <div className="rounded-md bg-black/50 p-3 shadow-lg backdrop-blur-sm">
+                {/* full-width bottom info bar, softer darkness to not obscure image */}
+                <div className="absolute left-0 right-0 bottom-0 p-4 md:p-6">
+                  <div className="w-full rounded-none bg-black/25 p-3 backdrop-blur-sm shadow-sm">
                     <h3 className="line-clamp-1 text-lg font-bold text-white md:text-3xl">{item.title}</h3>
 
                     <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-white/90">
                       {item.rating != null && (
-                        <span className="rounded bg-black/60 px-2 py-1">⭐ {item.rating.toFixed(1)}</span>
+                        <span className="rounded bg-black/40 px-2 py-1">⭐ {item.rating.toFixed(1)}</span>
                       )}
-                      {item.subDub && <span className="rounded bg-black/60 px-2 py-1">{item.subDub}</span>}
-                      {item.type && <span className="rounded bg-black/60 px-2 py-1">{item.type}</span>}
-                      {item.year && <span className="rounded bg-black/60 px-2 py-1">{item.year}</span>}
+                      {item.subDub && <span className="rounded bg-black/40 px-2 py-1">{item.subDub}</span>}
+                      {item.type && <span className="rounded bg-black/40 px-2 py-1">{item.type}</span>}
+                      {item.year && <span className="rounded bg-black/40 px-2 py-1">{item.year}</span>}
                     </div>
 
                     {item.description && (
