@@ -20,6 +20,9 @@ export default function Index() {
             image: t.image,
             description: t.synopsis,
             rating: t.rating,
+            subDub: t.subDub ?? null,
+            year: t.year ?? null,
+            type: t.type ?? null,
           })),
         );
         setTrending(trend);
