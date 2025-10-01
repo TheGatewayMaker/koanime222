@@ -120,7 +120,41 @@ export default function AnimePage() {
               </div>
             )}
 
+            <div className="flex items-center justify-between">
             <h2 className="mb-3 text-lg font-semibold">Episodes</h2>
+            <div className="mb-3">
+              <label className="inline-flex items-center gap-2 text-sm">
+                <span>Season</span>
+                <div className="relative inline-block">
+                  <select
+                    value={seasonPage}
+                    onChange={(e) => setSeasonPage(Number(e.target.value))}
+                    className="rounded-md border bg-background px-3 py-1 pr-8 text-sm"
+                    aria-label="Select season"
+                  >
+                    {Array.from({ length: Math.max(1, episodesPagination?.last_visible_page || 1) }).map((_, i) => (
+                      <option key={i} value={i + 1}>
+                        {i + 1}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-foreground/70">
+                      <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
+                    </svg>
+                  </span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          {loadingEpisodes ? (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <div key={i} className="aspect-[3/4] animate-pulse rounded-md bg-muted" />
+              ))}
+            </div>
+          ) : (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
               {episodes.map((ep) => (
                 <button
@@ -140,6 +174,7 @@ export default function AnimePage() {
                 </button>
               ))}
             </div>
+          )}
           </div>
         </div>
       ) : (
