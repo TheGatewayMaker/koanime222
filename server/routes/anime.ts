@@ -99,8 +99,13 @@ export const getEpisodes: RequestHandler = async (req, res) => {
 
     // 1) Try Consumet providers (use title->slug to lookup)
     try {
-      const infoShort = await tryFetchJson(`${JIKAN_BASE}/anime/${id}`).catch(() => null);
-      const title = infoShort?.data?.title || infoShort?.data?.title_english || infoShort?.data?.title_japanese;
+      const infoShort = await tryFetchJson(`${JIKAN_BASE}/anime/${id}`).catch(
+        () => null,
+      );
+      const title =
+        infoShort?.data?.title ||
+        infoShort?.data?.title_english ||
+        infoShort?.data?.title_japanese;
       if (title) {
         const slug = slugify(title);
         const CONSUMET = "https://api.consumet.org";
@@ -109,30 +114,62 @@ export const getEpisodes: RequestHandler = async (req, res) => {
           try {
             const url = `${CONSUMET}/anime/${p}/info/${slug}`;
             const jC = await tryFetchJson(url);
-            const arr = jC?.episodes || jC?.results || jC?.data?.episodes || jC?.data || null;
+            const arr =
+              jC?.episodes ||
+              jC?.results ||
+              jC?.data?.episodes ||
+              jC?.data ||
+              null;
             if (Array.isArray(arr) && arr.length > 0) {
               const episodes = arr.map((ep: any) => {
-                const number = ep.number ?? ep.episode ?? ep.ep ?? ep.ep_num ?? ep.index ?? null;
-                const title = ep.title || ep.name || ep.episodeTitle || ep.title_english || null;
+                const number =
+                  ep.number ??
+                  ep.episode ??
+                  ep.ep ??
+                  ep.ep_num ??
+                  ep.index ??
+                  null;
+                const title =
+                  ep.title ||
+                  ep.name ||
+                  ep.episodeTitle ||
+                  ep.title_english ||
+                  null;
                 const air_date = ep.air_date ?? ep.aired ?? ep.date ?? null;
                 const eid = ep.id ?? ep.mal_id ?? `${id}-${number ?? "0"}`;
                 return {
                   id: String(eid),
-                  number: typeof number === "number" ? number : Number(number) || 0,
+                  number:
+                    typeof number === "number" ? number : Number(number) || 0,
                   title: title || undefined,
                   air_date,
                 };
               });
               // compute pagination details if available
-            const per_page = jC?.pagination?.items?.per_page || jC?.pagination?.limit || jC?.meta?.perPage || 24;
-            const total = jC?.pagination?.items?.total || jC?.meta?.total || jC?.total || jC?.count || null;
-            const last_visible_page = total && per_page ? Math.ceil(total / per_page) : Math.max(1, Math.ceil((arr?.length || 0) / per_page));
-            const pagination = {
-              page: jC?.pagination?.current_page || page,
-              has_next_page: !!(jC?.pagination?.has_next_page || (total && per_page ? page * per_page < total : false)),
-              last_visible_page,
-            };
-            return res.json({ episodes, pagination });
+              const per_page =
+                jC?.pagination?.items?.per_page ||
+                jC?.pagination?.limit ||
+                jC?.meta?.perPage ||
+                24;
+              const total =
+                jC?.pagination?.items?.total ||
+                jC?.meta?.total ||
+                jC?.total ||
+                jC?.count ||
+                null;
+              const last_visible_page =
+                total && per_page
+                  ? Math.ceil(total / per_page)
+                  : Math.max(1, Math.ceil((arr?.length || 0) / per_page));
+              const pagination = {
+                page: jC?.pagination?.current_page || page,
+                has_next_page: !!(
+                  jC?.pagination?.has_next_page ||
+                  (total && per_page ? page * per_page < total : false)
+                ),
+                last_visible_page,
+              };
+              return res.json({ episodes, pagination });
             }
           } catch (e) {
             // ignore provider errors
@@ -271,7 +308,10 @@ export const getStreaming: RequestHandler = async (req, res) => {
     // get title from jikan
     const infoRes = await fetch(`${JIKAN_BASE}/anime/${id}`);
     const infoJson = await infoRes.json();
-    const title = infoJson?.data?.title || infoJson?.data?.title_english || infoJson?.data?.title_japanese;
+    const title =
+      infoJson?.data?.title ||
+      infoJson?.data?.title_english ||
+      infoJson?.data?.title_japanese;
     if (!title) return res.json({ links: [] });
     const slug = slugify(title);
     const providers = ["gogoanime", "zoro", "animepahe"];
@@ -283,7 +323,8 @@ export const getStreaming: RequestHandler = async (req, res) => {
         const r = await fetch(watchUrl);
         if (!r.ok) continue;
         const j = await r.json();
-        const sources = j?.sources || j?.mirrors || j?.streaming || j?.data || null;
+        const sources =
+          j?.sources || j?.mirrors || j?.streaming || j?.data || null;
         if (Array.isArray(sources)) {
           // collect provider name and URL(s)
           for (const s of sources) {
@@ -303,7 +344,10 @@ export const getStreaming: RequestHandler = async (req, res) => {
       try {
         const r2 = await fetch(`${JIKAN_BASE}/anime/${id}/streaming`);
         const j2 = await r2.json();
-        const jlinks = (j2.data || []).map((s: any) => ({ name: s.name, url: s.url }));
+        const jlinks = (j2.data || []).map((s: any) => ({
+          name: s.name,
+          url: s.url,
+        }));
         links.push(...jlinks);
       } catch (e) {}
     }
