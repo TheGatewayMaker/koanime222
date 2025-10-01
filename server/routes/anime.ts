@@ -264,15 +264,6 @@ export const getDiscover: RequestHandler = async (req, res) => {
   }
 };
 
-function slugify(input: string) {
-  return String(input || "")
-    .toLowerCase()
-    .trim()
-    .replace(/[:"'.,!?&/()\[\]]+/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9\-]/g, "");
-}
-
 export const getStreaming: RequestHandler = async (req, res) => {
   const CONSUMET = "https://api.consumet.org";
   try {
