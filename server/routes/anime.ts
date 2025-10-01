@@ -63,9 +63,41 @@ export const getInfo: RequestHandler = async (req, res) => {
 };
 
 export const getEpisodes: RequestHandler = async (req, res) => {
+  const ALT_BASE = "https://api3.anime-dexter-live.workers.dev";
   try {
     const id = req.params.id;
     const page = Number(req.query.page || 1);
+
+    // Try alternative provider first (anime-dexter)
+    try {
+      const altUrl = `${ALT_BASE}/anime/${id}/episodes${page > 1 ? `?page=${page}` : ""}`;
+      const rAlt = await fetch(altUrl);
+      if (rAlt.ok) {
+        const jAlt = await rAlt.json();
+        const arr = jAlt.data || jAlt.results || jAlt.episodes || null;
+        if (Array.isArray(arr) && arr.length > 0) {
+          const episodes = arr.map((ep: any) => {
+            const number = ep.number ?? ep.episode ?? ep.episode_number ?? ep.ep ?? ep.ep_num ?? null;
+            const title = ep.title || ep.name || ep.episodeTitle || ep.title_english || null;
+            const air_date = ep.air_date ?? ep.aired ?? ep.date ?? null;
+            const eid = ep.id ?? ep.mal_id ?? `${id}-${number ?? "0"}`;
+            return {
+              id: String(eid),
+              number: typeof number === "number" ? number : Number(number) || 0,
+              title: title || undefined,
+              air_date,
+            };
+          });
+          const pagination = jAlt.pagination || jAlt.meta || null;
+          return res.json({ episodes, pagination });
+        }
+      }
+    } catch (e) {
+      // ignore alt fetch errors and fall back to Jikan
+      console.warn("alt episodes fetch failed", e);
+    }
+
+    // Fallback to Jikan
     const r = await fetch(`${JIKAN_BASE}/anime/${id}/episodes?page=${page}`);
     const json = await r.json();
     const episodes = (json.data || []).map((ep: any) => ({
