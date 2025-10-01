@@ -60,26 +60,37 @@ export function BannerCarousel({ items }: { items: BannerItem[] }) {
             <Link
               key={item.id}
               to={`/anime/${item.id}`}
-              className="relative h-[220px] w-full min-w-0 shrink-0 grow-0 basis-full cursor-grab md:h-[380px]"
+              className="relative h-[220px] w-full min-w-0 shrink-0 grow-0 basis-full cursor-grab md:h-[380px] md:basis-full md:min-w-full px-4 md:px-0"
             >
-              <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
-              <div className="absolute inset-0 rounded-md bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+              <div className="relative h-full w-full rounded-lg overflow-hidden">
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="h-full w-full object-cover brightness-75 transition-transform duration-300"
+                />
 
-              <div className="absolute left-4 top-4 right-4 md:left-6 md:top-6 md:right-6">
-                <h3 className="line-clamp-1 text-lg font-bold text-white md:text-3xl">{item.title}</h3>
+                {/* dark overlay to improve readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
 
-                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-white/90">
-                  {item.rating != null && (
-                    <span className="rounded bg-black/60 px-2 py-1">⭐ {item.rating.toFixed(1)}</span>
-                  )}
-                  {item.subDub && <span className="rounded bg-black/60 px-2 py-1">{item.subDub}</span>}
-                  {item.type && <span className="rounded bg-black/60 px-2 py-1">{item.type}</span>}
-                  {item.year && <span className="rounded bg-black/60 px-2 py-1">{item.year}</span>}
+                {/* info at bottom-left with subtle drop shadow/backdrop */}
+                <div className="absolute left-4 bottom-4 right-4 md:left-6 md:bottom-6 md:right-auto max-w-3xl">
+                  <div className="rounded-md bg-black/50 p-3 shadow-lg backdrop-blur-sm">
+                    <h3 className="line-clamp-1 text-lg font-bold text-white md:text-3xl">{item.title}</h3>
+
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-white/90">
+                      {item.rating != null && (
+                        <span className="rounded bg-black/60 px-2 py-1">⭐ {item.rating.toFixed(1)}</span>
+                      )}
+                      {item.subDub && <span className="rounded bg-black/60 px-2 py-1">{item.subDub}</span>}
+                      {item.type && <span className="rounded bg-black/60 px-2 py-1">{item.type}</span>}
+                      {item.year && <span className="rounded bg-black/60 px-2 py-1">{item.year}</span>}
+                    </div>
+
+                    {item.description && (
+                      <p className="mt-2 max-w-2xl line-clamp-2 text-sm text-white/80">{item.description}</p>
+                    )}
+                  </div>
                 </div>
-
-                {item.description && (
-                  <p className="mt-2 max-w-2xl line-clamp-2 text-sm text-white/80">{item.description}</p>
-                )}
               </div>
             </Link>
           ))}
