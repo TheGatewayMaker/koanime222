@@ -49,8 +49,19 @@ export default function AnimePage() {
       setLoadingEpisodes(true);
       try {
         const resp = await fetchEpisodes(id, seasonPage);
-        setEpisodes(resp.episodes || []);
-        setEpisodesPagination(resp.pagination || null);
+        if (!resp || !Array.isArray(resp.episodes)) {
+          toast("Failed to load episodes", { description: "Could not fetch episodes for this season." });
+          setEpisodes([]);
+          setEpisodesPagination(null);
+        } else {
+          setEpisodes(resp.episodes || []);
+          setEpisodesPagination(resp.pagination || null);
+        }
+      } catch (e) {
+        console.error(e);
+        toast("Network error", { description: "Failed to fetch episodes. Please try again later." });
+        setEpisodes([]);
+        setEpisodesPagination(null);
       } finally {
         setLoadingEpisodes(false);
       }
