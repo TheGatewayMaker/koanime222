@@ -30,8 +30,14 @@ export default function AnimePage() {
           fetchAnimeInfo(id),
           fetchStreams(id).catch(() => []),
         ]);
+        if (!i) {
+          toast("Failed to load anime info", { description: "Could not fetch anime details from the API." });
+        }
         setInfo(i);
         setStreams(s || []);
+      } catch (e) {
+        console.error(e);
+        toast("Network error", { description: "Failed to fetch anime data. Please try again later." });
       } finally {
         setLoadingInfo(false);
       }
