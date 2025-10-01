@@ -64,50 +64,89 @@ export const getInfo: RequestHandler = async (req, res) => {
 
 export const getEpisodes: RequestHandler = async (req, res) => {
   const ALT_BASE = "https://api3.anime-dexter-live.workers.dev";
+
+  function fetchWithTimeout(url: string, opts: any = {}, timeout = 7000) {
+    const controller = new AbortController();
+    const idT = setTimeout(() => controller.abort(), timeout);
+    return fetch(url, { signal: controller.signal, ...opts }).finally(() => clearTimeout(idT));
+  }
+
+  async function tryFetchJson(url: string) {
+    try {
+      const r = await fetchWithTimeout(url, {}, 7000);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return await r.json();
+    } catch (e) {
+      // propagate
+      throw e;
+    }
+  }
+
   try {
     const id = req.params.id;
     const page = Number(req.query.page || 1);
 
-    // Try alternative provider first (anime-dexter)
+    // 1) Try dexter API with timeout/retries
     try {
       const altUrl = `${ALT_BASE}/anime/${id}/episodes${page > 1 ? `?page=${page}` : ""}`;
-      const rAlt = await fetch(altUrl);
-      if (rAlt.ok) {
-        const jAlt = await rAlt.json();
-        const arr = jAlt.data || jAlt.results || jAlt.episodes || null;
-        if (Array.isArray(arr) && arr.length > 0) {
-          const episodes = arr.map((ep: any) => {
-            const number = ep.number ?? ep.episode ?? ep.episode_number ?? ep.ep ?? ep.ep_num ?? null;
-            const title = ep.title || ep.name || ep.episodeTitle || ep.title_english || null;
-            const air_date = ep.air_date ?? ep.aired ?? ep.date ?? null;
-            const eid = ep.id ?? ep.mal_id ?? `${id}-${number ?? "0"}`;
-            return {
-              id: String(eid),
-              number: typeof number === "number" ? number : Number(number) || 0,
-              title: title || undefined,
-              air_date,
-            };
-          });
-          const pagination = jAlt.pagination || jAlt.meta || null;
-          return res.json({ episodes, pagination });
-        }
+      const jAlt = await tryFetchJson(altUrl);
+      const arr = jAlt.data || jAlt.results || jAlt.episodes || null;
+      if (Array.isArray(arr) && arr.length > 0) {
+        const episodes = arr.map((ep: any) => {
+          const number = ep.number ?? ep.episode ?? ep.episode_number ?? ep.ep ?? ep.ep_num ?? null;
+          const title = ep.title || ep.name || ep.episodeTitle || ep.title_english || null;
+          const air_date = ep.air_date ?? ep.aired ?? ep.date ?? null;
+          const eid = ep.id ?? ep.mal_id ?? `${id}-${number ?? "0"}`;
+          return {
+            id: String(eid),
+            number: typeof number === "number" ? number : Number(number) || 0,
+            title: title || undefined,
+            air_date,
+          };
+        });
+        const pagination = jAlt.pagination || jAlt.meta || null;
+        return res.json({ episodes, pagination });
       }
     } catch (e) {
-      // ignore alt fetch errors and fall back to Jikan
-      console.warn("alt episodes fetch failed", e);
+      console.warn("dexter episodes fetch failed", String(e));
     }
 
-    // Fallback to Jikan
-    const r = await fetch(`${JIKAN_BASE}/anime/${id}/episodes?page=${page}`);
-    const json = await r.json();
-    const episodes = (json.data || []).map((ep: any) => ({
-      id: String(ep.mal_id ?? `${id}-${ep.episode ?? ''}`),
-      number: typeof ep.episode === 'number' ? ep.episode : Number(ep.episode) || 0,
-      title: ep.title || ep.title_romanji || ep.title_japanese || undefined,
-      air_date: ep.aired || null,
-    }));
-    const pagination = json.pagination || null;
-    res.json({ episodes, pagination });
+    // 2) Try Jikan
+    try {
+      const jikanUrl = `${JIKAN_BASE}/anime/${id}/episodes?page=${page}`;
+      const json = await tryFetchJson(jikanUrl);
+      const episodes = (json.data || []).map((ep: any) => ({
+        id: String(ep.mal_id ?? `${id}-${ep.episode ?? ''}`),
+        number: typeof ep.episode === 'number' ? ep.episode : Number(ep.episode) || 0,
+        title: ep.title || ep.title_romanji || ep.title_japanese || undefined,
+        air_date: ep.aired || null,
+      }));
+      const pagination = json.pagination || null;
+      if (episodes.length > 0) return res.json({ episodes, pagination });
+    } catch (e) {
+      console.warn("jikan episodes fetch failed", String(e));
+    }
+
+    // 3) Fallback: attempt to fetch basic info and generate numbered episodes if episodes count available
+    try {
+      const infoUrl = `${JIKAN_BASE}/anime/${id}/full`;
+      const inf = await tryFetchJson(infoUrl).catch(() => null);
+      const epCount = inf?.data?.episodes ?? null;
+      if (typeof epCount === 'number' && epCount > 0) {
+        const episodes = Array.from({ length: Math.min(epCount, 200) }).map((_, i) => ({
+          id: `${id}-${i + 1}`,
+          number: i + 1,
+          title: undefined,
+          air_date: null,
+        }));
+        return res.json({ episodes, pagination: { page: 1, has_next_page: epCount > episodes.length } });
+      }
+    } catch (e) {
+      console.warn("fallback info fetch failed", String(e));
+    }
+
+    // Nothing available
+    return res.json({ episodes: [], pagination: null });
   } catch (e: any) {
     res.status(500).json({ error: e?.message || "Episodes failed" });
   }
