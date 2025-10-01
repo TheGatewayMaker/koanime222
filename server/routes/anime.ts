@@ -123,8 +123,16 @@ export const getEpisodes: RequestHandler = async (req, res) => {
                   air_date,
                 };
               });
-              const pagination = jC?.pagination || jC?.meta || null;
-              return res.json({ episodes, pagination });
+              // compute pagination details if available
+            const per_page = jC?.pagination?.items?.per_page || jC?.pagination?.limit || jC?.meta?.perPage || 24;
+            const total = jC?.pagination?.items?.total || jC?.meta?.total || jC?.total || jC?.count || null;
+            const last_visible_page = total && per_page ? Math.ceil(total / per_page) : Math.max(1, Math.ceil((arr?.length || 0) / per_page));
+            const pagination = {
+              page: jC?.pagination?.current_page || page,
+              has_next_page: !!(jC?.pagination?.has_next_page || (total && per_page ? page * per_page < total : false)),
+              last_visible_page,
+            };
+            return res.json({ episodes, pagination });
             }
           } catch (e) {
             // ignore provider errors
