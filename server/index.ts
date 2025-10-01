@@ -2,7 +2,16 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
-import { getTrending, getSearch, getInfo, getEpisodes } from "./routes/anime";
+import {
+  getTrending,
+  getSearch,
+  getInfo,
+  getEpisodes,
+  getDiscover,
+  getGenres,
+  getStreaming,
+  getNewReleases,
+} from "./routes/anime";
 
 export function createServer() {
   const app = express();
@@ -25,6 +34,10 @@ export function createServer() {
   app.get("/api/anime/search", getSearch);
   app.get("/api/anime/info/:id", getInfo);
   app.get("/api/anime/episodes/:id", getEpisodes);
+  app.get("/api/anime/discover", getDiscover);
+  app.get("/api/anime/genres", getGenres);
+  app.get("/api/anime/streams/:id", getStreaming);
+  app.get("/api/anime/new", getNewReleases);
 
   return app;
 }

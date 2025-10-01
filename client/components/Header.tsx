@@ -1,5 +1,5 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SearchBar } from "./SearchBar";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -7,14 +7,24 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (open) {
+      document.body.classList.add("overflow-hidden");
+    } else {
+      document.body.classList.remove("overflow-hidden");
+    }
+    return () => document.body.classList.remove("overflow-hidden");
+  }, [open]);
+
   return (
     <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
         <div className="flex items-center gap-3">
           <button
             className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-accent/60"
-            aria-label="Open menu"
-            onClick={() => setOpen(true)}
+            aria-label="Toggle menu"
+            aria-expanded={open}
+            onClick={() => setOpen((v) => !v)}
           >
             <svg
               width="20"
@@ -96,14 +106,13 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile drawer */}
       {open && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div
             className="absolute inset-0 bg-black/50"
             onClick={() => setOpen(false)}
           />
-          <div className="absolute left-0 top-0 h-full w-80 max-w-[85%] bg-background p-4 shadow-xl">
+          <div className="absolute left-0 top-0 h-full w-80 max-w-[85%] bg-background p-4 shadow-xl overflow-y-auto">
             <div className="mb-4 flex items-center justify-between">
               <Link
                 to="/"
