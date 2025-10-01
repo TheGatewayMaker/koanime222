@@ -60,12 +60,79 @@ export const getSearch: RequestHandler = async (req, res) => {
 
 export const getInfo: RequestHandler = async (req, res) => {
   try {
-    const id = req.params.id;
-    const r = await fetch(`${JIKAN_BASE}/anime/${id}/full`);
-    const json = await r.json();
-    const data = json.data;
-    if (!data) return res.status(404).json({ error: "Not found" });
-    res.json(mapAnime(data));
+    const raw = String(req.params.id || "");
+
+    // Helper to fetch full info by mal id
+    async function fetchByMal(malId: string) {
+      const r = await fetch(`${JIKAN_BASE}/anime/${malId}/full`);
+      if (!r.ok) return null;
+      const json = await r.json();
+      return json.data ?? null;
+    }
+
+    // If numeric id provided, try Jikan directly
+    if (/^\d+$/.test(raw)) {
+      const data = await fetchByMal(raw);
+      if (data) return res.json(mapAnime(data));
+    }
+
+    // Not numeric or initial fetch failed: try searching Jikan by title (replace hyphens with spaces)
+    const titleQuery = raw.replace(/-/g, " ");
+    try {
+      const sr = await fetch(`${JIKAN_BASE}/anime?q=${encodeURIComponent(titleQuery)}&limit=5`);
+      if (sr.ok) {
+        const sj = await sr.json();
+        const first = (sj.data || [])[0];
+        if (first && first.mal_id) {
+          const data = await fetchByMal(String(first.mal_id));
+          if (data) return res.json(mapAnime(data));
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    // Try consumet info lookup by slug across providers
+    try {
+      const CONSUMET = "https://api.consumet.org";
+      const providers = ["gogoanime", "zoro", "animepahe"];
+      for (const p of providers) {
+        try {
+          const url = `${CONSUMET}/anime/${p}/info/${raw}`;
+          const r = await fetch(url);
+          if (!r.ok) continue;
+          const j = await r.json();
+          const ep = j?.id || j?.mal_id || j?.data?.mal_id || j?.data?.id || null;
+          // If we can find mal_id, fetch full from Jikan
+          if (ep) {
+            const data = await fetchByMal(String(ep));
+            if (data) return res.json(mapAnime(data));
+          }
+          // Otherwise try to map consumet info fields
+          const title = j?.title || j?.data?.title || j?.name || null;
+          const image = j?.image || j?.poster || j?.data?.image || null;
+          if (title) {
+            return res.json({
+              id: j?.mal_id || null,
+              title,
+              image,
+              type: j?.type || null,
+              year: j?.year || null,
+              rating: null,
+              subDub: null,
+              genres: j?.genres || [],
+              synopsis: j?.description || j?.data?.description || null,
+            });
+          }
+        } catch (e) {
+          // ignore provider errors
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    return res.status(404).json({ error: "Not found" });
   } catch (e: any) {
     res.status(500).json({ error: e?.message || "Info failed" });
   }
