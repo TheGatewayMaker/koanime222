@@ -56,6 +56,13 @@ export async function fetchStreams(id: number): Promise<StreamLink[]> {
   return data.links as StreamLink[];
 }
 
+export async function fetchNewReleases(): Promise<ApiAnimeSummary[]> {
+  const res = await fetch("/api/anime/new");
+  if (!res.ok) throw new Error("Failed to fetch new releases");
+  const data = await res.json();
+  return data.results as ApiAnimeSummary[];
+}
+
 export async function fetchAnimeInfo(id: number): Promise<ApiAnimeSummary> {
   const res = await fetch(`/api/anime/info/${id}`);
   if (!res.ok) throw new Error("Failed to fetch info");
