@@ -16,26 +16,40 @@ export default function AnimePage() {
   const id = Number(params.id);
   const [info, setInfo] = useState<ApiAnimeSummary | null>(null);
   const [episodes, setEpisodes] = useState<EpisodeItem[]>([]);
+  const [episodesPagination, setEpisodesPagination] = useState<any>(null);
+  const [seasonPage, setSeasonPage] = useState<number>(1); // default season 1
   const [streams, setStreams] = useState<StreamLink[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingInfo, setLoadingInfo] = useState(true);
+  const [loadingEpisodes, setLoadingEpisodes] = useState(true);
 
   useEffect(() => {
     (async () => {
-      setLoading(true);
+      setLoadingInfo(true);
       try {
-        const [i, e, s] = await Promise.all([
+        const [i, s] = await Promise.all([
           fetchAnimeInfo(id),
-          fetchEpisodes(id),
           fetchStreams(id).catch(() => []),
         ]);
         setInfo(i);
-        setEpisodes(e);
         setStreams(s || []);
       } finally {
-        setLoading(false);
+        setLoadingInfo(false);
       }
     })();
   }, [id]);
+
+  useEffect(() => {
+    (async () => {
+      setLoadingEpisodes(true);
+      try {
+        const resp = await fetchEpisodes(id, seasonPage);
+        setEpisodes(resp.episodes || []);
+        setEpisodesPagination(resp.pagination || null);
+      } finally {
+        setLoadingEpisodes(false);
+      }
+    })();
+  }, [id, seasonPage]);
 
   const banner = useMemo(() => info?.image ?? "", [info]);
 
