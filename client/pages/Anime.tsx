@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Layout } from "../components/Layout";
 import { fetchAnimeInfo, fetchEpisodes, ApiAnimeSummary, EpisodeItem } from "../lib/anime";
-import { toast } from "@/components/ui/sonner";
+import { toast } from "sonner";
 
 export default function AnimePage() {
   const params = useParams();
