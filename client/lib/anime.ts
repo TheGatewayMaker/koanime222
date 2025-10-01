@@ -11,10 +11,18 @@ export interface ApiAnimeSummary {
 }
 
 export async function fetchTrending(): Promise<ApiAnimeSummary[]> {
-  const res = await fetch("/api/anime/trending");
-  if (!res.ok) throw new Error("Failed to fetch trending");
-  const data = await res.json();
-  return data.results as ApiAnimeSummary[];
+  try {
+    const res = await fetch("/api/anime/trending");
+    if (!res.ok) {
+      console.error("fetchTrending failed", res.status, await res.text().catch(() => ""));
+      return [];
+    }
+    const data = await res.json();
+    return data.results as ApiAnimeSummary[];
+  } catch (e) {
+    console.error("fetchTrending error", e);
+    return [];
+  }
 }
 
 export interface DiscoverParams {
