@@ -152,11 +152,15 @@ export default function AnimePage() {
                   className="appearance-none rounded-md border bg-background px-4 py-2 pr-8 text-sm transition-shadow duration-150 hover:shadow-sm focus:shadow-md focus:outline-none"
                   aria-label="Select season"
                 >
-                  {Array.from({ length: Math.max(1, episodesPagination?.last_visible_page || 1) }).map((_, i) => (
-                    <option key={i} value={i + 1}>
-                      {`Season ${i + 1}`}
-                    </option>
-                  ))}
+                  {(() => {
+                    const last = episodesPagination?.last_visible_page ?? Math.max(1, Math.ceil(((episodesPagination?.items?.total as number) || episodes.length) / 24));
+                    const count = Math.max(1, Number(last || 1));
+                    return Array.from({ length: count }).map((_, i) => (
+                      <option key={i} value={i + 1}>
+                        {`Season ${i + 1}`}
+                      </option>
+                    ));
+                  })()}
                 </select>
                 <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-foreground/70">
