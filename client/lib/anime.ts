@@ -75,9 +75,13 @@ export interface EpisodeItem {
   title?: string;
   air_date?: string | null;
 }
-export async function fetchEpisodes(id: number): Promise<EpisodeItem[]> {
-  const res = await fetch(`/api/anime/episodes/${id}`);
+export interface EpisodesResponse {
+  episodes: EpisodeItem[];
+  pagination?: { has_next_page?: boolean; last_visible_page?: number | null; items?: any } | null;
+}
+export async function fetchEpisodes(id: number, page = 1): Promise<EpisodesResponse> {
+  const res = await fetch(`/api/anime/episodes/${id}?page=${page}`);
   if (!res.ok) throw new Error("Failed to fetch episodes");
   const data = await res.json();
-  return data.episodes as EpisodeItem[];
+  return data as EpisodesResponse;
 }
