@@ -17,6 +17,15 @@ function mapAnime(a: any) {
   };
 }
 
+function slugify(input: string) {
+  return String(input || "")
+    .toLowerCase()
+    .trim()
+    .replace(/[:"'.,!?&/()\[\]]+/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9\-]/g, "");
+}
+
 export const getTrending: RequestHandler = async (_req, res) => {
   try {
     const r = await fetch(`${JIKAN_BASE}/top/anime?limit=24`);
