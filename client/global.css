@@ -128,9 +128,22 @@
 
   .ambient body,
   body.ambient {
-    background-image: radial-gradient(1200px 600px at 10% 10%, hsl(280 86% 18% / 0.35), transparent),
-      radial-gradient(900px 600px at 90% 30%, hsl(210 90% 28% / 0.25), transparent),
-      radial-gradient(1000px 800px at 40% 100%, hsl(320 88% 22% / 0.25), transparent);
+    background-image:
+      radial-gradient(
+        1200px 600px at 10% 10%,
+        hsl(280 86% 18% / 0.35),
+        transparent
+      ),
+      radial-gradient(
+        900px 600px at 90% 30%,
+        hsl(210 90% 28% / 0.25),
+        transparent
+      ),
+      radial-gradient(
+        1000px 800px at 40% 100%,
+        hsl(320 88% 22% / 0.25),
+        transparent
+      );
     background-color: hsl(var(--background));
     background-attachment: fixed;
   }

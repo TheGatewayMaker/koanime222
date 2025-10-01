@@ -23,7 +23,12 @@ export async function fetchAnimeInfo(id: number): Promise<ApiAnimeSummary> {
   return await res.json();
 }
 
-export interface EpisodeItem { id: string; number: number; title?: string; air_date?: string | null; }
+export interface EpisodeItem {
+  id: string;
+  number: number;
+  title?: string;
+  air_date?: string | null;
+}
 export async function fetchEpisodes(id: number): Promise<EpisodeItem[]> {
   const res = await fetch(`/api/anime/episodes/${id}`);
   if (!res.ok) throw new Error("Failed to fetch episodes");

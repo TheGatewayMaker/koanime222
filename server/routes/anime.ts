@@ -32,7 +32,9 @@ export const getSearch: RequestHandler = async (req, res) => {
   try {
     const q = String(req.query.q || "");
     if (!q) return res.json({ results: [] });
-    const r = await fetch(`${JIKAN_BASE}/anime?q=${encodeURIComponent(q)}&limit=20&sfw`);
+    const r = await fetch(
+      `${JIKAN_BASE}/anime?q=${encodeURIComponent(q)}&limit=20&sfw`,
+    );
     const json = await r.json();
     const results = (json.data || []).map((a: any) => ({
       mal_id: a.mal_id,
@@ -65,7 +67,12 @@ export const getEpisodes: RequestHandler = async (req, res) => {
     const id = req.params.id;
     const r = await fetch(`${JIKAN_BASE}/anime/${id}/episodes`);
     const json = await r.json();
-    const episodes = (json.data || []).map((ep: any) => ({ id: String(ep.mal_id ?? `${id}-${ep.mal_id ?? ep.episode}`), number: ep.mal_id ?? ep.mal_id ?? ep.episode ?? 0, title: ep.title || ep.title_romanji || ep.title_japanese || undefined, air_date: ep.aired || null }));
+    const episodes = (json.data || []).map((ep: any) => ({
+      id: String(ep.mal_id ?? `${id}-${ep.mal_id ?? ep.episode}`),
+      number: ep.mal_id ?? ep.mal_id ?? ep.episode ?? 0,
+      title: ep.title || ep.title_romanji || ep.title_japanese || undefined,
+      air_date: ep.aired || null,
+    }));
     res.json({ episodes });
   } catch (e: any) {
     res.status(500).json({ error: e?.message || "Episodes failed" });
